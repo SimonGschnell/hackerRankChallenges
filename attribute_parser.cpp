@@ -33,21 +33,24 @@ istream& operator>>(istream& cin, tag& obj){
         obj.name = obj.name.substr(1);
         
         string attrName{};
+        string discard{};
         string attrValue{};
-        char delim{};
-        while(true){
-            cin>>attrName;
-            cin>>delim;
-            cin>>attrValue;
-                if(attrValue.find('>') != attrValue.npos){
-                    //remove the > from the value
-                    attrValue=attrValue.substr(1,attrValue.size()-3);
-                    obj.attr[attrName] = attrValue;
-                    break;
-                }
-            attrValue=attrValue.substr(1,attrValue.size()-2);
+        
+        string line{};
+        getline(cin,line);
+        int nrAttr=count(line.begin(),line.end(),'=');
+        stringstream sstream(line);
+        for(int i =0; i < nrAttr; i++){
+            getline(sstream,attrName,'=');
+            getline(sstream,discard,'"');
+            getline(sstream,attrValue,'"');
+            int first = attrName.find_first_not_of(' ');
+            int last = attrName.find_last_not_of(' ');
+            attrName = attrName.substr(first,(last-first+1));
             obj.attr[attrName] = attrValue;
         }
+        
+        
     }
     
     return cin;
@@ -55,7 +58,7 @@ istream& operator>>(istream& cin, tag& obj){
 
 int main() {
     
-    stringstream test("<tag3 another = 'another' final = 'final'>");
+    stringstream test("<tag3 another=\"another\" final=\"final\">");
     tag ttest;
     test >> ttest;
     //cout << ttest;
